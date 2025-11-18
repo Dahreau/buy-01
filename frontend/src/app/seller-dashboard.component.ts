@@ -62,7 +62,7 @@ import { AuthService } from './services/auth.service';
           <label class="form-label">Select product to delete</label>
           <select class="form-select" [(ngModel)]="deleteProductId" name="deleteProductId">
             <option value="">-- choose product --</option>
-            <option *ngFor="let p of allProducts" [value]="p.id || p._id">{{p.name}} ({{p.id || p._id}}) {{p.userId === currentUserId ? '— yours' : ''}}</option>
+            <option *ngFor="let p of myProducts" [value]="p.id || p._id">{{p.name}} ({{p.id || p._id}}) {{p.userId === currentUserId ? '— yours' : ''}}</option>
           </select>
         </div>
         <div>
@@ -86,15 +86,18 @@ export class SellerDashboardComponent implements OnInit {
   loadMyProducts() {
     const userId = this.auth.getUserId();
     this.currentUserId = userId;
-    // Always load all products for the select. If a user is logged in, also compute
-    // the seller-owned products (myProducts) and fetch their media.
+    
     this.productService.listAll().subscribe(data => {
       this.allProducts = data;
       if (!userId) {
         this.myProducts = [];
         return;
       }
-      this.myProducts = data.filter((p: any) => p.userId === userId);
+      
+      this.myProducts = data.filter((p: any) => {
+        return p.userId === userId;
+      });
+      
       for (const p of this.myProducts) {
         const pid = p.id || p._id;
         this.media.byProduct(pid).subscribe(meds => p.images = meds, _ => p.images = []);
@@ -104,7 +107,8 @@ export class SellerDashboardComponent implements OnInit {
 
   create(evt: Event) {
     evt.preventDefault();
-    const body = { name: this.name, price: this.price, quantity: this.quantity, description: this.description };
+    const userId = this.auth.getUserId();
+    const body = { name: this.name, price: this.price, quantity: this.quantity, description: this.description, userId: userId };
     this.productService.create(body).subscribe({ next: () => { alert('Created'); this.loadMyProducts(); }, error: () => alert('Create failed') });
   }
 

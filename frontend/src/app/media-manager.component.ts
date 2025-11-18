@@ -1,6 +1,7 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ProductService } from './services/product.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-media-manager',
@@ -32,11 +33,17 @@ export class MediaManagerComponent {
   file: File | null = null;
   error = '';
   products: any[] = [];
-  constructor(private http: HttpClient, private productService: ProductService) {}
+  constructor(private http: HttpClient, private productService: ProductService, private auth: AuthService) {}
 
   ngOnInit(): void {
     // load products so the user can pick one by name (and we show the id in the option)
-    this.productService.listAll().subscribe({ next: (data: any[]) => this.products = data, error: () => this.products = [] });
+    this.productService.listAll().subscribe({ 
+      next: (data: any[]) => {
+        const userId = this.auth.getUserId();
+        this.products = data.filter(p => p.userId === userId);
+      }, 
+      error: () => this.products = [] 
+    });
   }
 
   onFile(evt: any) {
