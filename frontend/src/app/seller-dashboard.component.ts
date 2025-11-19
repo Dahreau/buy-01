@@ -55,22 +55,6 @@ import { AuthService } from './services/auth.service';
 
     <hr/>
     <app-media-manager (uploaded)="loadMyProducts()"></app-media-manager>
-    <div class="card mt-4">
-      <div class="card-body">
-        <h5 class="card-title">Delete Product</h5>
-        <div class="mb-3">
-          <label class="form-label">Select product to delete</label>
-          <select class="form-select" [(ngModel)]="deleteProductId" name="deleteProductId">
-            <option value="">-- choose product --</option>
-            <option *ngFor="let p of myProducts" [value]="p.id || p._id">{{p.name}} ({{p.id || p._id}}) {{p.userId === currentUserId ? '— yours' : ''}}</option>
-          </select>
-        </div>
-        <div>
-          <button class="btn btn-danger" (click)="deleteSelected()" [disabled]="!deleteProductId">Delete selected product</button>
-          <div *ngIf="deleteError" class="text-danger mt-2">{{deleteError}}</div>
-        </div>
-      </div>
-    </div>
   `
 })
 export class SellerDashboardComponent implements OnInit {
