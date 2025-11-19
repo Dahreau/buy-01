@@ -41,11 +41,21 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-    // In production, restrict allowed origins. For local development allow localhost origins only.
-    configuration.setAllowedOriginPatterns(List.of("https://localhost", "https://127.0.0.1", "http://localhost", "http://127.0.0.1"));
+        // In production, restrict allowed origins. For local development allow localhost origins (with ports).
+        configuration.setAllowedOriginPatterns(List.of(
+            "http://localhost:4200",
+            "http://127.0.0.1:4200",
+            "https://localhost:4200",
+            "https://127.0.0.1:4200",
+            "http://localhost",
+            "http://127.0.0.1",
+            "https://localhost",
+            "https://127.0.0.1"
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
-        configuration.setAllowCredentials(false);
+        // Allow credentials in development so Authorization header and cookies can be sent.
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
