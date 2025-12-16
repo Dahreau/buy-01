@@ -1,0 +1,170 @@
+package com.example.userservice.controller;
+
+import com.example.userservice.model.User;
+import com.example.userservice.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest
+class AuthControllerTest {
+
+    @Autowired
+    private AuthController authController;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    @BeforeEach
+    void cleanup() {
+        // Clean test data before each test
+        userRepository.deleteAll();
+    }
+
+    @Test
+    void register_NewClient_ShouldCreateUserAndReturnToken() {
+        // Given
+        Map<String, String> request = Map.of(
+            "name", "Test User",
+            "email", "client@test.com", 
+            "password", "password123",
+            "role", "CLIENT"
+        );
+
+        // When
+        ResponseEntity<?> response = authController.register(request);
+
+        // Then
+        assertEquals(200, response.getStatusCodeValue());
+        assertTrue(response.getBody() instanceof Map);
+        
+        Map<?, ?> body = (Map<?, ?>) response.getBody();
+        assertNotNull(body.get("token"));
+        assertNotNull(body.get("userId"));
+        
+        // Verify user was saved in database
+        User savedUser = userRepository.findByEmail("client@test.com").orElse(null);
+        assertNotNull(savedUser);
+        assertEquals("Test User", savedUser.getName());
+        assertEquals("CLIENT", savedUser.getRole().name());
+    }
+
+    @Test
+    void register_NewSeller_ShouldCreateSellerUser() {
+        // Given
+        Map<String, String> request = Map.of(
+            "name", "Test Seller",
+            "email", "seller@test.com",
+            "password", "password123", 
+            "role", "SELLER"
+        );
+
+        // When
+        ResponseEntity<?> response = authController.register(request);
+
+        // Then
+        assertEquals(200, response.getStatusCodeValue());
+        
+        User savedUser = userRepository.findByEmail("seller@test.com").orElse(null);
+        assertNotNull(savedUser);
+        assertEquals("SELLER", savedUser.getRole().name());
+    }
+
+    @Test
+    void register_DuplicateEmail_ShouldReturnError() {
+        // Given - create first user
+        Map<String, String> firstRequest = Map.of(
+            "name", "First User",
+            "email", "duplicate@test.com",
+            "password", "password123",
+            "role", "CLIENT"
+        );
+        authController.register(firstRequest);
+
+        // When - try to create user with same email
+        Map<String, String> secondRequest = Map.of(
+            "name", "Second User", 
+            "email", "duplicate@test.com",
+            "password", "password123",
+            "role", "CLIENT"
+        );
+        ResponseEntity<?> response = authController.register(secondRequest);
+
+        // Then
+        assertEquals(400, response.getStatusCodeValue());
+        assertTrue(response.getBody().toString().contains("Email already in use"));
+    }
+
+    @Test
+    void login_ValidCredentials_ShouldReturnToken() {
+        // Given - register a user first
+        Map<String, String> registerRequest = Map.of(
+            "name", "Login Test User",
+            "email", "login@test.com",
+            "password", "loginpassword",
+            "role", "CLIENT"
+        );
+        authController.register(registerRequest);
+
+        // When - login with valid credentials
+        Map<String, String> loginRequest = Map.of(
+            "email", "login@test.com",
+            "password", "loginpassword"
+        );
+        ResponseEntity<?> response = authController.login(loginRequest);
+
+        // Then
+        assertEquals(200, response.getStatusCodeValue());
+        Map<?, ?> body = (Map<?, ?>) response.getBody();
+        assertNotNull(body.get("token"));
+        assertNotNull(body.get("userId"));
+    }
+
+    @Test
+    void login_InvalidPassword_ShouldReturnError() {
+        // Given - register a user
+        Map<String, String> registerRequest = Map.of(
+            "name", "Login Test User", 
+            "email", "login2@test.com",
+            "password", "correctpassword",
+            "role", "CLIENT"
+        );
+        authController.register(registerRequest);
+
+        // When - login with wrong password
+        Map<String, String> loginRequest = Map.of(
+            "email", "login2@test.com",
+            "password", "wrongpassword"
+        );
+        ResponseEntity<?> response = authController.login(loginRequest);
+
+        // Then
+        assertEquals(401, response.getStatusCodeValue());
+        assertTrue(response.getBody().toString().contains("Invalid credentials"));
+    }
+
+    @Test
+    void login_NonExistentEmail_ShouldReturnError() {
+        // Given - no user with this email
+        Map<String, String> loginRequest = Map.of(
+            "email", "nonexistent@test.com",
+            "password", "anypassword"
+        );
+
+        // When
+        ResponseEntity<?> response = authController.login(loginRequest);
+
+        // Then
+        assertEquals(401, response.getStatusCodeValue());
+        assertTrue(response.getBody().toString().contains("Invalid credentials"));
+    }
+}
