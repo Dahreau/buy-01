@@ -1,7 +1,6 @@
 // frontend/src/app/simple.service.spec.ts
 import { TestBed } from '@angular/core/testing';
 
-// Un service simple à tester
 export class SimpleService {
   add(a: number, b: number): number { return a + b; }
   isSeller(role: string): boolean { return role === 'SELLER'; }
