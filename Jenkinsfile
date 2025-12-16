@@ -16,13 +16,6 @@ pipeline {
             }
         }
         
-        stage('Start MongoDB') {
-            steps {
-                bat 'docker start mongodb || echo "MongoDB already running"'
-                bat 'timeout /t 5 /nobreak' 
-            }
-        }
-        
         stage('Build & Test Backend') {
             parallel {
                 stage('User Service') {
