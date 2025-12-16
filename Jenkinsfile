@@ -19,7 +19,7 @@ pipeline {
         stage('Start MongoDB') {
             steps {
                 bat 'docker start mongodb || echo "MongoDB already running"'
-                bat 'timeout /t 5 /nobreak'  // Attends 5 secondes
+                bat 'timeout /t 5 /nobreak' 
             }
         }
         
