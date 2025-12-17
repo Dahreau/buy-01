@@ -17,7 +17,7 @@ pipeline {
         }
         
         stage('Build & Test Backend') {
-            parallel {
+            stages {
                 stage('User Service') {
                     steps {
                         dir('backend/user-service') {
