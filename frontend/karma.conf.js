@@ -20,20 +20,9 @@ module.exports = function (config) {
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
-    autoWatch: !isCI,
-    customLaunchers: {
-      ChromeWSL: {
-        base: "Chrome",
-        flags: ["--no-sandbox", "--disable-gpu"],
-      },
-      ChromeHeadlessCI: {
-        base: "ChromeHeadless",
-        flags: ["--no-sandbox", "--disable-gpu"],
-      },
-    },
-    browsers: isCI ? ["ChromeHeadlessCI"] : ["ChromeWSL"],
-
-    singleRun: isCI,
-    restartOnFileChange: !isCI,
+    autoWatch: false,
+    browsers: ["ChromeHeadless"],
+    singleRun: true,
+    restartOnFileChange: false,
   });
 };
