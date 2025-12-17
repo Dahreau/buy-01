@@ -47,7 +47,7 @@ pipeline {
                 dir('frontend') {
                     bat 'npm install'
                     bat 'npm run build'
-                    bat 'npm test -- --watch=false --browsers=ChromeHeadless --no-coverage'
+                    bat 'set CI=true && npm test'
                 }
             }
         }

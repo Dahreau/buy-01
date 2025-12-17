@@ -1,4 +1,3 @@
-// frontend/src/app/simple.service.spec.ts
 import { TestBed } from '@angular/core/testing';
 
 export class SimpleService {
