@@ -46,7 +46,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     bat 'npm install'
-                    bat 'npm run build -- --configuration production'
+                    bat 'npm run build'
                     bat 'npm test -- --watch=false --browsers=ChromeHeadless --no-coverage'
                 }
             }
