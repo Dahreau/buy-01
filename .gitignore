@@ -8,7 +8,9 @@ yarn-error.log*
 /dist/
 /build/
 /coverage/
-.angular/cache/
+frontend/.angular/cache/
+frontend/dist/
+frontend/dist/buy-frontend/
 
 ### Java / Maven
 **/target/
@@ -46,3 +48,7 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+
+# System files / packages
+*.deb
+*.crt
