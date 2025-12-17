@@ -47,7 +47,7 @@ pipeline {
                 dir('frontend') {
                     bat 'npm install'
                     bat 'npm run build'
-                    bat 'set CI=true && npm test'
+                    bat 'set CI=true && npm test -- --project=buy-frontend'
                 }
             }
         }
