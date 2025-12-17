@@ -1,4 +1,6 @@
 module.exports = function (config) {
+  const isCI = process.env.CI === "true";
+
   config.set({
     basePath: "",
     frameworks: ["jasmine", "@angular-devkit/build-angular"],
@@ -18,15 +20,20 @@ module.exports = function (config) {
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
-    autoWatch: true,
+    autoWatch: !isCI,
     customLaunchers: {
       ChromeWSL: {
         base: "Chrome",
         flags: ["--no-sandbox", "--disable-gpu"],
       },
+      ChromeHeadlessCI: {
+        base: "ChromeHeadless",
+        flags: ["--no-sandbox", "--disable-gpu"],
+      },
     },
-    browsers: ["ChromeWSL"],
-    singleRun: false,
-    restartOnFileChange: true,
+    browsers: isCI ? ["ChromeHeadlessCI"] : ["ChromeWSL"],
+
+    singleRun: isCI,
+    restartOnFileChange: !isCI,
   });
 };
